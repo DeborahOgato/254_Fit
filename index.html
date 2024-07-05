@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>254Fit Health and Wellness</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="script.js" defer></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="js/script.js" defer></script>
 </head>
 <body>
     <header>
@@ -15,22 +15,23 @@
                 <li><a href="index.html">Home</a></li>
                 <li><a href="about.html">About</a></li>
                 <li><a href="contact.html">Contact</a></li>
-                <li><a href="login.html">Login</a></li>
+                <li class="login-button"><a href="login.html">Login</a></li>
             </ul>
         </nav>
     </header>
 
     <main>
-        <img src="254fit logo.png" alt="System Image">
-        <button id="signUpBtn">Sign Up</button>
+        <div class="logo-container">
+            <img src="images/254fit logo.png" alt="System Image">
+            <button id="signUpBtn">Sign Up</button>
+        </div>
     </main>
     <footer>
-
-    <div class="social-icons">
-        <a href="https://www.instagram.com"><img src="instagram.png" alt="Instagram"></a>
-        <a href="https://www.linkedin.com"><img src="linkedin.png" alt="LinkedIn"></a>
-        <a href="https://www.twitter.com"><img src="twitter.png" alt="Twitter"></a>
-    </div>
+        <div class="social-icons">
+            <a href="https://www.instagram.com"><img src="images/instagram.png" alt="Instagram"></a>
+            <a href="https://www.linkedin.com"><img src="images/linkedin.png" alt="LinkedIn"></a>
+            <a href="https://www.twitter.com"><img src="images/twitter.png" alt="Twitter"></a>
+        </div>
         <a href="help.html">Help</a>
         <a href="terms_of_service.html">Terms of Service</a>
         <a href="privacy_policy.html">Privacy Policy</a>
@@ -40,34 +41,93 @@
             <span class="close">&times;</span>
             <form id="signUpForm" action="signup.php" method="POST">
                 <label for="name">Name:</label>
-                <input type="text" id="name" name="name" required>
+                <input type="text" id="name" name="name" required><br><br>
+
                 <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required>
-                <label for="googleFit">Import data from Google Fit:</label>
-                <input type="checkbox" id="googleFit" name="googleFit">
-                <div id="googleFitData" style="display: none;">
-                    <label for="weight">Weight:</label>
-                    <input type="text" id="weight" name="weight">
-                    <label for="height">Height:</label>
-                    <input type="text" id="height" name="height">
-                    <label for="age">Age:</label>
-                    <input type="text" id="age" name="age">
-                    <label for="gender">Gender:</label>
-                    <select id="gender" name="gender">
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                        <option value="other">Other</option>
-                    </select>
-                    <label for="steps">Steps:</label>
-                    <input type="text" id="steps" name="steps">
-                    <label for="activity">Activity:</label>
-                    <input type="text" id="activity" name="activity">
-                    <label for="totalEnergyExpended">Total Energy Expended:</label>
-                    <input type="text" id="totalEnergyExpended" name="totalEnergyExpended">
-                </div>
+                <input type="email" id="email" name="email" required><br><br>
+
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required><br><br>
+
+                <label for="age">Age:</label>
+                <input type="number" id="age" name="age" required><br><br>
+
+                <label for="gender">Gender:</label>
+                <select id="gender" name="gender" required>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                </select><br><br>
+
+                <label for="weight">Weight:</label>
+                <input type="number" id="weight" name="weight" required>
+                <select id="weightUnit" name="weightUnit" required>
+                    <option value="kg">kg</option>
+                    <option value="lbs">lbs</option>
+                </select><br><br>
+
+                <label for="height">Height:</label>
+                <input type="number" id="height" name="height" required>
+                <select id="heightUnit" name="heightUnit" required>
+                    <option value="cm">cm</option>
+                    <option value="in">in</option>
+                </select><br><br>
+                
                 <button type="submit">Submit</button>
             </form>
         </div>
     </div>
+
+    <script>
+        document.getElementById('signUpBtn').addEventListener('click', function() {
+            document.getElementById('signUpModal').style.display = 'block';
+        });
+
+        document.querySelector('.close').addEventListener('click', function() {
+            document.getElementById('signUpModal').style.display = 'none';
+        });
+
+        document.getElementById('signUpForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const data = {
+                name: formData.get('name'),
+                email: formData.get('email'),
+                password: formData.get('password'),
+                age: parseInt(formData.get('age'), 10),
+                gender: formData.get('gender'),
+                weight: parseFloat(formData.get('weight')),
+                weightUnit: formData.get('weightUnit'),
+                height: parseFloat(formData.get('height')),
+                heightUnit: formData.get('heightUnit')
+            };
+
+            // Convert weight and height to metric if necessary
+            if (data.weightUnit === 'lbs') {
+                data.weight = data.weight * 0.453592;
+            }
+            if (data.heightUnit === 'in') {
+                data.height = data.height * 2.54;
+            }
+
+            // Send data to the server
+            fetch('signup.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                console.log('Success:', result);
+                // Optionally, redirect or show a success message here
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Handle errors here
+            });
+        });
+    </script>
 </body>
 </html>

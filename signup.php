@@ -1,40 +1,42 @@
 <?php
-include 'config.php';
+// Assuming you have a database connection in config.php
+include('config.php');
 
-header('Content-Type: application/json');
+// Retrieve data from POST request
+$name = $_POST['name'];
+$email = $_POST['email'];
+$password = password_hash($_POST['password'], PASSWORD_DEFAULT); // Hash password securely
+$age = $_POST['age'];
+$gender = $_POST['gender'];
+$weight = $_POST['weight'];
+$weightUnit = $_POST['weightUnit'];
+$height = $_POST['height'];
+$heightUnit = $_POST['heightUnit'];
 
-$data = json_decode(file_get_contents('php://input'), true);
+// Insert user data into users table
+$insertUserQuery = "INSERT INTO users (name, email, password, created_at)
+                    VALUES ('$name', '$email', '$password', NOW())";
+if (mysqli_query($conn, $insertUserQuery)) {
+    $userId = mysqli_insert_id($conn); // Get the ID of the inserted user
 
-$name = $data['name'];
-$email = $data['email'];
-$age = (int)$data['age'];
-$gender = $data['gender'];
-$weight = (float)$data['weight'];
-$weightUnit = $data['weightUnit'];
-$height = (float)$data['height'];
-$heightUnit = $data['heightUnit'];
-
-// Convert weight and height to metric if necessary
-if ($weightUnit === 'lbs') {
-    $weight = $weight * 0.453592;
+    // Insert user data into user_data table
+    $insertUserDataQuery = "INSERT INTO user_data (user_id, weight, height, steps, activity, total_energy_expended, created_at)
+                            VALUES ('$userId', '$weight', '$height', NULL, NULL, NULL, NOW())";
+    if (mysqli_query($conn, $insertUserDataQuery)) {
+        // Success
+        $response = array('success' => true, 'message' => 'User registered successfully.');
+        echo json_encode($response);
+    } else {
+        // Error inserting user data
+        $response = array('success' => false, 'message' => 'Error inserting user data.');
+        echo json_encode($response);
+    }
+} else {
+    // Error inserting user
+    $response = array('success' => false, 'message' => 'Error registering user.');
+    echo json_encode($response);
 }
-if ($heightUnit === 'in') {
-    $height = $height * 2.54;
-}
 
-// Insert user into users table
-$userQuery = $conn->prepare("INSERT INTO users (name, email, created_at) VALUES (?, ?, NOW())");
-$userQuery->bind_param("ss", $name, $email);
-$userQuery->execute();
-$userId = $userQuery->insert_id;
-
-// Insert user data into user_data table
-$userDataQuery = $conn->prepare("INSERT INTO user_data (user_id, age, gender, weight, height, created_at) VALUES (?, ?, ?, ?, ?, NOW())");
-$userDataQuery->bind_param("iisdd", $userId, $age, $gender, $weight, $height);
-$userDataQuery->execute();
-
-$response = array('success' => true, 'message' => 'User signed up successfully');
-echo json_encode($response);
-
-$conn->close();
+// Close database connection
+mysqli_close($conn);
 ?>
