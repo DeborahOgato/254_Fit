@@ -1,37 +1,40 @@
 <?php
-$host = "localhost";
-$username = "root";
-$password = "";
-$dbname = "254Fit";
+include 'config.php';
 
-// Create connection
-$conn = new mysqli($host, $username, $password, $dbname);
+header('Content-Type: application/json');
 
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+$data = json_decode(file_get_contents('php://input'), true);
+
+$name = $data['name'];
+$email = $data['email'];
+$age = (int)$data['age'];
+$gender = $data['gender'];
+$weight = (float)$data['weight'];
+$weightUnit = $data['weightUnit'];
+$height = (float)$data['height'];
+$heightUnit = $data['heightUnit'];
+
+// Convert weight and height to metric if necessary
+if ($weightUnit === 'lbs') {
+    $weight = $weight * 0.453592;
+}
+if ($heightUnit === 'in') {
+    $height = $height * 2.54;
 }
 
-$name = $_POST['name'];
-$email = $_POST['email'];
-$import_google_fit = isset($_POST['import_google_fit']) ? 1 : 0;
+// Insert user into users table
+$userQuery = $conn->prepare("INSERT INTO users (name, email, created_at) VALUES (?, ?, NOW())");
+$userQuery->bind_param("ss", $name, $email);
+$userQuery->execute();
+$userId = $userQuery->insert_id;
 
-$sql = "INSERT INTO users (name, email) VALUES ('$name', '$email')";
+// Insert user data into user_data table
+$userDataQuery = $conn->prepare("INSERT INTO user_data (user_id, age, gender, weight, height, created_at) VALUES (?, ?, ?, ?, ?, NOW())");
+$userDataQuery->bind_param("iisdd", $userId, $age, $gender, $weight, $height);
+$userDataQuery->execute();
 
-if ($conn->query($sql) === TRUE) {
-    $user_id = $conn->insert_id;
-    session_start();
-    $_SESSION['user_id'] = $user_id;
-    $_SESSION['email'] = $email;
-
-    if ($import_google_fit) {
-        header('Location: fit_login.php');
-    } else {
-        header('Location: set_goals.php');
-    }
-} else {
-    echo "Error: " . $sql . "<br>" . $conn->error;
-}
+$response = array('success' => true, 'message' => 'User signed up successfully');
+echo json_encode($response);
 
 $conn->close();
 ?>
