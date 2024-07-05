@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>254Fit Health and Wellness Web Application</title>
+    <title>254Fit Health and Wellness</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="script.js" defer></script>
 </head>
 <body>
     <header>
-        <h1>254Fit Health and Wellness Web Application</h1>
+        <h1>254Fit</h1>
         <nav>
             <ul>
                 <li><a href="index.html">Home</a></li>
@@ -21,14 +22,52 @@
 
     <main>
         <img src="254fit logo.png" alt="System Image">
-        <button onclick="window.location.href='signup.html'">Sign Up</button>
+        <button id="signUpBtn">Sign Up</button>
     </main>
-
     <footer>
+
+    <div class="social-icons">
         <a href="https://www.instagram.com"><img src="instagram.png" alt="Instagram"></a>
         <a href="https://www.linkedin.com"><img src="linkedin.png" alt="LinkedIn"></a>
         <a href="https://www.twitter.com"><img src="twitter.png" alt="Twitter"></a>
+    </div>
         <a href="help.html">Help</a>
+        <a href="terms_of_service.html">Terms of Service</a>
+        <a href="privacy_policy.html">Privacy Policy</a>
     </footer>
+    <div id="signUpModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <form id="signUpForm" action="signup.php" method="POST">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+                <label for="googleFit">Import data from Google Fit:</label>
+                <input type="checkbox" id="googleFit" name="googleFit">
+                <div id="googleFitData" style="display: none;">
+                    <label for="weight">Weight:</label>
+                    <input type="text" id="weight" name="weight">
+                    <label for="height">Height:</label>
+                    <input type="text" id="height" name="height">
+                    <label for="age">Age:</label>
+                    <input type="text" id="age" name="age">
+                    <label for="gender">Gender:</label>
+                    <select id="gender" name="gender">
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <label for="steps">Steps:</label>
+                    <input type="text" id="steps" name="steps">
+                    <label for="activity">Activity:</label>
+                    <input type="text" id="activity" name="activity">
+                    <label for="totalEnergyExpended">Total Energy Expended:</label>
+                    <input type="text" id="totalEnergyExpended" name="totalEnergyExpended">
+                </div>
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+    </div>
 </body>
 </html>
